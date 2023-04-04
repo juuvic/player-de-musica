@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="fontawesome/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+    <title>Player</title>
+</head>
+<style>
+
+body,html{
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+    background-color: #333;
+    color:#ddd;
+}
+
+img {
+    width:300px;
+    height:300px;
+}
+
+.texto {
+    width:300px;
+}
+
+h2 {
+    margin-bottom:5px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.duracao {
+    width:300px;
+    margin-top:25px;
+}
+
+.barra {
+    width:300px;
+    height:6px;
+    border:1px solid #eee;
+    border-radius:5px;
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+}
+
+progress {
+    height:6px;
+    width:0;
+    background-color:#333;
+}
+
+.ponto {
+    width:20px;
+    height:20px;
+    background-color:#eee;
+    border-radius:50%;
+    margin-left:-10px;
+}
+
+.tempo {
+    display:flex;
+    width:300px;
+    justify-content:space-between;
+}
+
+.botoes {
+    width:300px;
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+    margin-top:15px;
+}
+.botao-play, .botao-pause{
+    font-size:50px;
+    cursor:pointer;
+}
+
+.setas {
+    font-size:40px;
+    cursor:pointer;
+}
+
+.botao-pause{
+    display:none;
+}
+
+</style>
+<body>
+    <img src="imagens/dj.jpg">
+    <div class="texto">
+        <h2>Tina</h2>
+        <i>Vintage Culture, Bhaskar & Meca</i> 
+    </div>
+    <div class="duracao">
+        <div class="barra">
+            <progress value="0" max="1"></progress>
+            <div class="ponto"></div>
+            </div>
+            <div class="tempo">
+                <p class="inicio">0:00</p>
+                <p class="fim">3:40</p>
+        </div>
+    </div>
+    <div class="botoes">
+        <i class="fa-sharp fa-solid fa-forward fa-rotate-180 setas anterior"></i>
+        <i class="fa-sharp fa-solid fa-circle-play botao-play"></i>
+        <i class="fa-solid fa-circle-pause botao-pause"></i>
+        <i class="fa-solid fa-forward setas proxima"></i>
+    </div>
+    <audio src="musicas/161. Vintage Culture, Bhaskar & Meca - Tina (ft. The Vic).mp3"></audio>
+</body>
+
+    <script>
+        var musicas = [
+            //objetos
+            {titulo:'Tina', artista: 'Vintage', src:'musicas/161. Vintage Culture, Bhaskar & Meca - Tina (ft. The Vic).mp3', img:'imagens/dj.jpg'},
+            {titulo:'Sweet Child Of Mine', artista: 'Guns and Roses', src:'musicas/Guns and Roses - Sweet Child Of Mine.mp3', img:'imagens/guitarra.jpg'},
+            {titulo:'Vamos Fugir', artista: 'Skank', src:'musicas/Skank - Vamos Fugir.mp3', img:'imagens/ocean.jpg'}
+
+        ];
+
+        var musica = document.querySelector('audio');
+        var indexMusica = 0;
+        var duracaoMusica = document.querySelector('.fim');
+        var imagem = document.querySelector('img');
+        var nomeMusica = document.querySelector('.texto h2');
+        var nomeArtista = document.querySelector('.texto i');
+        
+        renderizarMusica(indexMusica);
+
+        //eventos 
+        document.querySelector('.botao-play').addEventListener('click', tocarMusica);
+
+        document.querySelector('.botao-pause').addEventListener('click', pausarMusica);
+       
+        musica.addEventListener('timeupdate', atualizarBarra);
+
+        document.querySelector('.anterior').addEventListener('click',() => {
+            indexMusica--;
+            if (indexMusica < 0){
+                indexMusica = 2;
+            }
+            //funcao anonima
+            renderizarMusica(indexMusica);
+        })
+
+        document.querySelector('.proxima').addEventListener('click',() => {
+            indexMusica++;
+            if (indexMusica > 2){
+                indexMusica = 0;
+            }
+            //funcao anonima
+            renderizarMusica(indexMusica); //troca as imagens, nome da musica/artista
+        })
+
+        function renderizarMusica(index){
+            musica.setAttribute('src', musicas[index].src);
+            musica.addEventListener('loadeddata', () => {
+                nomeMusica.textContent = musicas[index].titulo;
+                nomeArtista.textContent = musicas[index].artista;
+                imagem.src = musicas[index].img;
+                duracaoMusica.textContent = segundosParaMinutos(Math.floor(musica.duration));
+            });
+        }
+
+        //funcoes 
+        function tocarMusica(){
+            musica.play();
+            document.querySelector('.botao-pause').style.display = 'block';
+            document.querySelector('.botao-play').style.display = 'none';
+        }
+
+        function pausarMusica(){
+            musica.pause();
+            document.querySelector('.botao-pause').style.display = 'none';
+            document.querySelector('.botao-play').style.display = 'block';
+        }
+
+        function atualizarBarra(){
+            var barra = document.querySelector('progress');
+
+            barra.style.width = Math.floor((musica.currentTime / musica.duration) * 100) + '%';
+
+            var tempoDecorrido = document.querySelector('.inicio');
+            tempoDecorrido.textContent = segundosParaMinutos(Math.floor(musica.currentTime));
+        }
+
+        function segundosParaMinutos(segundos) {
+            var campoMinutos = Math.floor(segundos / 60);
+            var campoSegundos = segundos % 60;
+            if (campoSegundos < 10){
+                campoSegundos = '0' + campoSegundos;
+            }
+
+            return campoMinutos+':' + campoSegundos;
+        }
+
+     
+    </script>
+</html>
